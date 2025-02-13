@@ -3,7 +3,7 @@
   "version": "1.0.61",
   "slug": "hass-n8n",
   "description": "Self host your n8n instance",
-  "url": "https://github.com/Rbillon59/hass-n8n",
+  "url": "https://github.com/azman0101/hass-n8n",
   "arch": [
     "armhf",
     "armv7",
@@ -34,7 +34,7 @@
     "auth": false,
     "auth_username": "",
     "auth_password": "",
-    "timezone": "Europe/Berlin",
+    "timezone": "Europe/Paris",
     "protocol": "http",
     "certfile": "fullchain.pem",
     "keyfile": "privkey.pem",
