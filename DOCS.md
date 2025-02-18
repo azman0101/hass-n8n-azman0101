@@ -55,7 +55,7 @@ The timezone variable is used for the Cron node which trigger event based on tim
 
 ### Option: `protocol` (required)
 
-http for unencrypted traffic  
+http for unencrypted traffic
 https for encrypted traffic.
 
 If https, fill SSL cert variable accordingly
@@ -97,7 +97,7 @@ Got questions?
 
 You can open an issue on Github and i'll try to answer it
 
-repository: <https://github.com/Rbillon59/hass-n8n>
+repository: <https://github.com/azman0101/hass-n8n>
 
 ## License
 
