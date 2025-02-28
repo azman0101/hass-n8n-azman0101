@@ -15,6 +15,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: update Dockerfile with latest n8n version
+        run: |
+          latest_version=$(curl -s https://api.github.com/repos/n8n-io/n8n/releases/latest | jq -r ".tag_name" | awk -F"@" '{print $2}')
+          sed -i "s|FROM docker.n8n.io/n8nio/n8n:.*|FROM docker.n8n.io/n8nio/n8n:${latest_version}|" Dockerfile
+
+      - name: update config.json with latest n8n version
+        run: |
+          latest_version=$(curl -s https://api.github.com/repos/n8n-io/n8n/releases/latest | jq -r ".tag_name" | awk -F"@" '{print $2}')
+          jq ".version = \"${latest_version}\"" config.json > config.json.tmp && mv config.json.tmp config.json
+
       - name: update addon configuration in config.json
         id: n8n_latest_version
         run: |
@@ -25,17 +35,7 @@ jobs:
           jq ".version = \"${new_version}\"" config.json > config.json.tmp && mv config.json.tmp config.json
           n8n_version=$(cat Dockerfile | grep "FROM" | awk -F":" '{print $2}')
           echo "::set-output name=new_version::${n8n_version}"
-          sed -i "s/## \[Unreleased\]/## \[Unreleased\]\n\n## [ ${new_version} ] - $(date +%Y-%m-%d) \n\n Bump n8n to ${n8n_version} /g" CHANGELOG.md
-
-      - name: update Dockerfile with latest n8n version
-        run: |
-          latest_version=$(curl -s https://api.github.com/repos/n8n-io/n8n/releases/latest | jq -r ".tag_name" | awk -F"@" '{print $2}')
-          sed -i "s|FROM docker.n8n.io/n8nio/n8n:.*|FROM docker.n8n.io/n8nio/n8n:${latest_version}|" Dockerfile
-
-      - name: update config.json with latest n8n version
-        run: |
-          latest_version=$(curl -s https://api.github.com/repos/n8n-io/n8n/releases/latest | jq -r ".tag_name" | awk -F"@" '{print $2}')
-          jq ".version = \"${latest_version}\"" config.json > config.json.tmp && mv config.json.tmp config.json
+          sed -i "s/## \[Unreleased\]/## \[Unreleased\]\n\n## [ ${new_version} ] - $(date +%Y-%m-%d) \n\n Bump n8n to ${n8n_version}/g" CHANGELOG.md
 
       - name: create pull request
         uses: peter-evans/create-pull-request@v7
