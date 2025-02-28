@@ -9,3 +9,10 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    assignees:
+      - "azman0101"
+    reviewers:
+      - "azman0101"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
