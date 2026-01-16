@@ -4,18 +4,26 @@
   "slug": "hass-n8n-azman0101",
   "description": "Self host your n8n instance",
   "url": "https://github.com/azman0101/hass-n8n-azman0101",
+  "hassio_api": true,
+  "hassio_role": "default",
+  "homeassistant_api": true,
   "arch": [
-    "armhf",
-    "armv7",
     "aarch64",
-    "amd64",
-    "i386"
+    "amd64"
   ],
+  "backup_exclude": [
+    "n8n/.cache",
+    "n8n/.n8n/n8nEventLog*.log",
+    "n8n/.n8n/crash.journal",
+    "supervisord.log*"
+  ],
+  "image": "ghcr.io/rbillon59/hass-n8n-{arch}",
   "startup": "application",
   "boot": "auto",
-  "icon": "ico.png",
-  "logo": "ico.png",
-  "webui": "http://[HOST]:[PORT:5678]/",
+  "icon": "icon.png",
+  "logo": "icon.png",
+  "panel_icon": "mdi:sitemap-outline",
+  "webui": "http://[HOST]:[PORT:5690]/",
   "map": [
     "ssl:ro",
     "backup:rw",
@@ -23,13 +31,18 @@
     "media:rw",
     "config:ro"
   ],
-  "apparmor": true,
+  "ingress": true,
+  "ingress_port": 5690,
+  "ingress_stream": true,
   "ports": {
-    "5678/tcp": 5678
+    "5678/tcp": null,
+    "8081/tcp": 8081
   },
   "ports_description": {
-    "5678/tcp": "n8n Web interface"
+    "5678/tcp": "The port for all n8n traffic. Normally not exposed, as Home Assistant Ingress is more secure and is recommended. You may expose this port if you want to bypass the Ingress (not recommended for security reasons). See the documentation for more information.",
+    "8081/tcp": "The port for n8n webhook and API-related traffic. Use this to allow running under Home Assistant Ingress while still allowing certain public communication channels to go through and function. See the documentation for more information."
   },
+  "apparmor": true,
   "options": {
     "auth": false,
     "auth_username": "",
@@ -44,13 +57,7 @@
     "cmd_line_args": ""
   },
   "schema": {
-    "auth": "bool",
-    "auth_username": "str?",
-    "auth_password": "str?",
     "timezone": "str",
-    "protocol": "str",
-    "certfile": "str",
-    "keyfile": "str",
     "env_vars_list": [
       "match(^[A-Z_0-9]+: .*$)"
     ],
