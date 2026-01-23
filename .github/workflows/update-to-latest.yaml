@@ -21,12 +21,27 @@ jobs:
           latest_n8n_version=$(curl -s https://api.github.com/repos/n8n-io/n8n/releases/latest | jq -r ".tag_name" | awk -F"@" '{print $2}')
           echo "latest_n8n_version=${latest_n8n_version}" >> $GITHUB_OUTPUT
 
-      - name: Update Dockerfile with latest n8n version
+      - name: Check if update is needed
+        id: check_update
         run: |
-          sed -i "s|FROM docker.n8n.io/n8nio/n8n:.*|FROM docker.n8n.io/n8nio/n8n:${{ steps.fetch_latest_version.outputs.latest_n8n_version }}|" Dockerfile
+          current_version=$(grep "FROM docker.n8n.io/n8nio/n8n:" Dockerfile | awk -F":" '{print $2}' | awk '{print $1}')
+          latest_version="${{ steps.fetch_latest_version.outputs.latest_n8n_version }}"
+          if [ "$current_version" == "$latest_version" ]; then
+            echo "Versions match ($current_version). No update needed."
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Update needed: $current_version -> $latest_version"
+            echo "update_needed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Dockerfile with latest n8n version
+        if: steps.check_update.outputs.update_needed == 'true'
+        run: |
+          sed -i "s|FROM docker.n8n.io/n8nio/n8n:[^ ]*|FROM docker.n8n.io/n8nio/n8n:${{ steps.fetch_latest_version.outputs.latest_n8n_version }}|" Dockerfile
 
       - name: Update addon version in config.json
         id: update_addon_version
+        if: steps.check_update.outputs.update_needed == 'true'
         run: |
           current_version=$(jq -r ".version" config.json)
           major=$(echo $current_version | awk -F"." '{print $1}')
@@ -38,10 +53,12 @@ jobs:
           jq ".version = \"${new_version}\"" config.json > config.json.tmp && mv config.json.tmp config.json
 
       - name: Update CHANGELOG.md
+        if: steps.check_update.outputs.update_needed == 'true'
         run: |
           sed -i "s/## \[Unreleased\]/## \[Unreleased\]\n\n## [ ${{ steps.update_addon_version.outputs.new_version }} ] - $(date +%Y-%m-%d) \n\n Bump n8n to ${{ steps.fetch_latest_version.outputs.latest_n8n_version }} /g" CHANGELOG.md
 
       - name: Create pull request
+        if: steps.check_update.outputs.update_needed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.CR_PAT }}
