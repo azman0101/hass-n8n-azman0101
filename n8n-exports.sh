@@ -39,11 +39,8 @@ done
 if [ -n "${NODE_FUNCTION_ALLOW_EXTERNAL}" ]; then
     echo "Installing external packages..."
     IFS=',' read -r -a packages <<< "${NODE_FUNCTION_ALLOW_EXTERNAL}"
-    for package in "${packages[@]}"
-    do
-        echo "Installing ${package}..."
-        npm install -g "${package}"
-    done
+    echo "Installing ${packages[*]}..."
+    npm install -g "${packages[@]}"
 fi
 
 export N8N_USER_FOLDER="/data/n8n"
