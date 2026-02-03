@@ -1,4 +1,4 @@
-FROM docker.n8n.io/n8nio/n8n:2.4.8 AS base
+FROM docker.n8n.io/n8nio/n8n:2.6.3 AS base
 
 ARG NGINX_ALLOWED_IP=172.30.32.2
 ENV NGINX_ALLOWED_IP=${NGINX_ALLOWED_IP}
