@@ -6,11 +6,21 @@ export N8N_RUNNERS_ENABLED=true
 export N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
 
 CONFIG_PATH="/data/options.json"
-export GENERIC_TIMEZONE="$(jq --raw-output '.timezone // empty' $CONFIG_PATH)"
-export N8N_PROTOCOL="$(jq --raw-output '.protocol // empty' $CONFIG_PATH)"
-export N8N_SSL_CERT="/ssl/$(jq --raw-output '.certfile // empty' $CONFIG_PATH)"
-export N8N_SSL_KEY="/ssl/$(jq --raw-output '.keyfile // empty' $CONFIG_PATH)"
-export N8N_CMD_LINE="$(jq --raw-output '.cmd_line_args // empty' $CONFIG_PATH)"
+{
+    IFS= read -r -d '' GENERIC_TIMEZONE
+    IFS= read -r -d '' N8N_PROTOCOL
+    IFS= read -r -d '' certfile
+    IFS= read -r -d '' keyfile
+    IFS= read -r -d '' N8N_CMD_LINE
+} < <(jq -j '(.timezone // ""), "\u0000", (.protocol // ""), "\u0000", (.certfile // ""), "\u0000", (.keyfile // ""), "\u0000", (.cmd_line_args // ""), "\u0000"' "$CONFIG_PATH")
+
+export GENERIC_TIMEZONE
+export N8N_PROTOCOL
+export N8N_SSL_CERT="/ssl/$certfile"
+export N8N_SSL_KEY="/ssl/$keyfile"
+export N8N_CMD_LINE
+
+unset certfile keyfile
 
 #####################
 ## USER PARAMETERS ##
